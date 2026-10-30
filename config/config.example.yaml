@@ -1,0 +1,15 @@
+# Configuración del proyecto · copia este archivo a config/config.yaml y ajústalo.
+# config.yaml no se sube a git. Los secretos van en .env, nunca aquí.
+# Es la única fuente de rutas, puertos, idiomas y dispositivos: nada de eso se fija en el código.
+# Un modelo tipado (Pydantic, zod…) valida este archivo entero al arrancar, con tests; añadir una
+# clave aquí exige añadirla al modelo y a la guía docs/09_como_arrancar.md (sección 5).
+# Rutas relativas a la raíz del repositorio.
+
+# {{RELLENAR: una sección por pieza o tema. Ejemplo de forma (bórralo):}}
+# servidor:
+#   host: 127.0.0.1         # 0.0.0.0 solo si debe verse en la red local
+#   port: 8000
+# datos:
+#   database: data/app.sqlite3
+# debug:
+#   log_level: info
