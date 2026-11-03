@@ -71,6 +71,8 @@ Desde la raíz del repositorio. {{RELLENAR: en qué terminales funcionan (PowerS
 - Arrancar cada pieza: {{RELLENAR}}
 - Todo junto: {{RELLENAR: script de arranque, p. ej. `scripts/start.ps1` envuelto por `start.bat`}}
 - Herramientas: {{RELLENAR: `tools/<herramienta>/…`, una línea por herramienta estable}}
+  - Prueba de despegue a 2 m (Android, Git Bash): `bash scripts/instalar_android.sh` (una vez) y
+    `export JAVA_HOME="$LOCALAPPDATA/hugin-zain-toolchain/jdk"; cd tools/prueba-despegue && ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug`
 
 Cuando añadas un comando nuevo y estable, apúntalo aquí (y en la guía de arranque si lo usa una persona).
 
