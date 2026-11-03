@@ -202,7 +202,10 @@ class MainActivity : Activity() {
         keys.performAction(key, object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg> {
             override fun onSuccess(result: EmptyMsg?) = event("$name: OK")
             override fun onFailure(error: IDJIError) {
-                event("$name falló: ${error.description() ?: error.errorCode()}")
+                Log.w(PruebaApp.TAG, "$name falló: $error")
+                // El SDK suele dar SYSTEM_ERROR; el motivo real del rechazo está en esta clave.
+                val motorError = keys.getValue(KeyTools.createKey(FlightControllerKey.KeyTakeoffFailureError))
+                event("$name falló: ${error.description() ?: error.errorCode()} · motivo: $motorError")
                 // Si el despegue no arranca, el controlador lo aborta por tiempo; si falla el
                 // aterrizaje, el piloto debe aterrizar con el mando.
             }
