@@ -5,7 +5,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-// La App Key de DJI va en local.properties (ignorado por git): dji.appKey=...
+// La App Key de DJI y su nombre de paquete van en local.properties (ignorado por git):
+// dji.appKey=... y dji.applicationId=... (la App Key solo vale para ese paquete).
 val localProps = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
@@ -15,8 +16,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        // La App Key de DJI está ligada a este nombre de paquete.
-        applicationId = "com.huginzain.pruebadespegue"
+        applicationId = localProps.getProperty("dji.applicationId", "com.huginzain.pruebadespegue")
         minSdk = 24
         targetSdk = 35
         versionCode = 1

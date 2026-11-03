@@ -161,7 +161,7 @@ class MainActivity : Activity() {
 
             override fun onFailure(error: IDJIError) = runOnUiThread {
                 enablingSticks = false
-                event("No se pudieron activar los joysticks: ${error.description()}")
+                event("No se pudieron activar los joysticks: ${error.description() ?: error.errorCode()}")
                 controller.requestLanding()
             }
         })
@@ -202,7 +202,7 @@ class MainActivity : Activity() {
         keys.performAction(key, object : CommonCallbacks.CompletionCallbackWithParam<EmptyMsg> {
             override fun onSuccess(result: EmptyMsg?) = event("$name: OK")
             override fun onFailure(error: IDJIError) {
-                event("$name falló: ${error.description()}")
+                event("$name falló: ${error.description() ?: error.errorCode()}")
                 // Si el despegue no arranca, el controlador lo aborta por tiempo; si falla el
                 // aterrizaje, el piloto debe aterrizar con el mando.
             }
@@ -211,7 +211,7 @@ class MainActivity : Activity() {
 
     private fun logCallback(name: String) = object : CommonCallbacks.CompletionCallback {
         override fun onSuccess() = event("$name: OK")
-        override fun onFailure(error: IDJIError) = event("$name falló: ${error.description()}")
+        override fun onFailure(error: IDJIError) = event("$name falló: ${error.description() ?: error.errorCode()}")
     }
 
     private fun event(msg: String) {
@@ -256,6 +256,7 @@ class MainActivity : Activity() {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.rgb(20, 20, 20))
+            setPadding(pad, pad, pad, pad) // Android < 15 no siempre llama al listener de abajo
             // Desde Android 15 la app ocupa toda la pantalla: sin esto las barras tapan los botones.
             ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
                 val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())

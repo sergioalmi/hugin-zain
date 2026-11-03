@@ -34,13 +34,16 @@ botón ATERRIZAR sigue funcionando.
    ```
 
    Al final debe verse `Listo. JDK: openjdk version "17…"`.
-2. Pide la **App Key** en https://developer.dji.com/user/apps (tipo *Mobile SDK*). Usa como nombre de
-   paquete **`com.huginzain.pruebadespegue`**. Añádela a `tools/prueba-despegue/local.properties`
-   (no se sube a git):
+2. Pide la **App Key** en https://developer.dji.com/user/apps (tipo *Mobile SDK*, Android). La App
+   Key solo vale para el nombre de paquete con el que la registres. Añade las dos cosas a
+   `tools/prueba-despegue/local.properties` (no se sube a git):
 
    ```
    dji.appKey=TU_APP_KEY
+   dji.applicationId=el.paquete.de.tu.app.key
    ```
+
+   Sin `dji.applicationId` se usa `com.huginzain.pruebadespegue`.
 
 ## 2. Compilar y probar
 

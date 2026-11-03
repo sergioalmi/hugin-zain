@@ -24,9 +24,9 @@ class PruebaApp : Application() {
             }
 
             override fun onRegisterSuccess() = report("App Key registrada")
-            override fun onRegisterFailure(error: IDJIError) = report("Fallo al registrar la App Key: ${error.description()}")
-            override fun onProductConnect(productId: Int) = report("Dron conectado")
-            override fun onProductDisconnect(productId: Int) = report("Dron desconectado")
+            override fun onRegisterFailure(error: IDJIError) = report("Fallo al registrar la App Key: ${error.description() ?: error.errorCode()}")
+            override fun onProductConnect(productId: Int) = report("Producto DJI conectado (id $productId)")
+            override fun onProductDisconnect(productId: Int) = report("Producto DJI desconectado (id $productId)")
             override fun onProductChanged(productId: Int) = Unit
             override fun onDatabaseDownloadProgress(current: Long, total: Long) = Unit
         })
