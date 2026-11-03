@@ -99,3 +99,4 @@ Repite los pasos 4 y 5.
 | `Despegue falló: …` | Brújula sin calibrar, batería baja, motores bloqueados o zona restringida; lee el mensaje |
 | Se queda en `CLIMBING` y aterriza a los 15 s | El dron no acepta la altura por joysticks virtuales: revisar en el simulador el modo `VerticalControlMode.POSITION` |
 | Mensajes del MSDK | En el PC: `adb logcat -s PruebaDespegue` |
+| La app se cierra nada más abrirla (`NoClassDefFoundError` en `adb logcat -b crash`) | Se compiló como depurable: el protector del MSDK no arranca así. `app/build.gradle.kts` debe tener `debug { isDebuggable = false }` |

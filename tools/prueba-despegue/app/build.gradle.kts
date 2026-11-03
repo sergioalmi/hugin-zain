@@ -25,6 +25,12 @@ android {
         manifestPlaceholders["djiAppKey"] = localProps.getProperty("dji.appKey", "FALTA_APP_KEY")
     }
 
+    buildTypes {
+        // El protector nativo del MSDK no arranca en apps depurables (NoClassDefFoundError al abrir):
+        // medido el 03/11/2026 en un Galaxy A37 (Android 16): falla 6 de 6 arranques depurable, 0 de 3 sin depurar.
+        debug { isDebuggable = false }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -35,6 +41,8 @@ android {
         warningsAsErrors = true
         // Herramienta de prueba: un solo idioma (castellano), sin icono y solo arm64 (lo exige el MSDK).
         disable += setOf("SetTextI18n", "MissingApplicationIcon", "ChromeOsAbiSupport")
+        // Las versiones van fijadas a las que usa la guía de integración de DJI, no a la última.
+        disable += "GradleDependency"
     }
 
     packaging {
@@ -50,5 +58,7 @@ dependencies {
     implementation("com.dji:dji-sdk-v5-aircraft:5.18.0")
     compileOnly("com.dji:dji-sdk-v5-aircraft-provided:5.18.0")
     runtimeOnly("com.dji:dji-sdk-v5-networkImp:5.18.0") // el registro de la App Key necesita red
+    // El MSDK usa androidx.core (ActivityCompat) sin declararlo: sin esto se cierra al arrancar.
+    implementation("androidx.appcompat:appcompat:1.6.1")
     testImplementation("junit:junit:4.13.2")
 }

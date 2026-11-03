@@ -15,6 +15,8 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import dji.sdk.keyvalue.key.DJIKey
 import dji.sdk.keyvalue.key.FlightControllerKey
 import dji.sdk.keyvalue.key.KeyTools
@@ -228,6 +230,7 @@ class MainActivity : Activity() {
         val onGround = controller.phase == Phase.ON_GROUND
         takeoffButton.isEnabled = onGround && connected && !t.isFlying
         simulatorBox.isEnabled = onGround && connected && !t.isFlying
+        takeoffButton.alpha = if (takeoffButton.isEnabled) 1f else 0.4f // desactivado debe verse distinto
     }
 
     private fun buildLayout(): LinearLayout {
@@ -253,7 +256,12 @@ class MainActivity : Activity() {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.rgb(20, 20, 20))
-            setPadding(pad, pad, pad, pad)
+            // Desde Android 15 la app ocupa toda la pantalla: sin esto las barras tapan los botones.
+            ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
+                val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+                v.setPadding(pad + bars.left, pad + bars.top, pad + bars.right, pad + bars.bottom)
+                insets
+            }
             addView(statusText, LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f))
             addView(simulatorBox, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
             addView(buttons, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
