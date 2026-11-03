@@ -190,6 +190,7 @@ presupuesto de recursos que no se puede pasar y cómo se mide.}}
 - `docs/08_despliegue.md` · instalación en destino y lista del día de la entrega
 - `docs/09_como_arrancar.md` · cómo arrancar y usar todo, opciones de configuración y averías
   (mantenla al día al cambiar comandos u opciones)
+- `docs/10_sdk_dji_mini3pro.md` · SDK de DJI (MSDK V5) para el Mini 3 Pro: enlaces, integración y límites
 - `docs/specs/` · especificaciones · `docs/seguimiento/` · informes de cada hito
 
 {{RELLENAR o BORRAR: originales fuera del repositorio (ficha, diseños) en `<ruta>`: para leerlos,
