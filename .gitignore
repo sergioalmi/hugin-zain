@@ -40,4 +40,8 @@ Desktop.ini
 .vs/
 .idea/
 
+# --- Android / Gradle ---
+.gradle/
+local.properties
+*.apk
 # {{RELLENAR: lo propio del stack (carpetas generadas por el motor o el framework)}}

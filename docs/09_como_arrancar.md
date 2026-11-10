@@ -65,7 +65,7 @@ Tras cambiar algo, reinicia las piezas que leen esa sección (columna «Lo lee»
 
 | Para | Comando |
 | --- | --- |
-| {{RELLENAR}} | {{RELLENAR}} |
+| Probar el despegue a 2 m del Mini 3 Pro (botón en el DJI RC Pro) | Ver `tools/prueba-despegue/README.md`: instalación, App Key, compilar, instalar en el mando y procedimiento (primero en simulador) |
 
 ## 8. Si algo falla
 
