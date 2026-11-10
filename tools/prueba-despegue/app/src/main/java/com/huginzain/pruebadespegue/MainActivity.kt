@@ -60,6 +60,7 @@ class MainActivity : Activity() {
     private var enablingSticks = false
     private var lastConfirmMs = 0L
     @Volatile private var lastEvent = "" // lo escriben callbacks del MSDK desde otros hilos
+    private var wasConnected: Boolean? = null
 
     private lateinit var statusText: TextView
     private lateinit var simulatorBox: CheckBox
@@ -113,6 +114,11 @@ class MainActivity : Activity() {
 
     private fun tick() {
         val connected = keys.getValue(connectionKey) == true
+        // Enlace real con el controlador de vuelo; los avisos de producto del SDK no lo reflejan.
+        if (connected != wasConnected) {
+            wasConnected = connected
+            Log.i(PruebaApp.TAG, "Enlace con el controlador de vuelo: ${if (connected) "SÍ" else "NO"}")
+        }
         val telemetry = Telemetry(
             isFlying = keys.getValue(isFlyingKey) == true,
             isAutoTakeoff = keys.getValue(flightModeKey) == FlightMode.AUTO_TAKE_OFF,
