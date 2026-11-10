@@ -132,6 +132,26 @@ funcionalidad (una incidencia o un PR).
 - **Nunca** propone `/clear` con trabajo sin commit, pruebas a medias o decisiones sin registrar.
 - La compactación automática puede ocurrir sola; para ella vale la regla de conservación de abajo.
 
+## Modelos y esfuerzo (ADR-001)
+
+Sesión principal: **Opus 5.5 en `medium`** (fijado en `.claude/settings.json`); implementa, escribe
+los tests y edita el código. Lo demás se delega a agentes de `.claude/agents/` que ya llevan su
+modelo; **IMPORTANT:** úsalos tú sin que te lo pidan:
+
+| Trabajo | Agente | Modelo |
+| --- | --- | --- |
+| Planificar (modo plan, varias piezas, ADR) | `Plan` | Fable 5.2 `high` |
+| Investigación difícil, diagnóstico que no sale | `investigador` | Fable 5.2 `high` |
+| Revisión antes de cada commit con código y de cada PR | `revisor` | Fable 5.2 `high` |
+| Buscar en el repositorio | `Explore` | Haiku 5.5 |
+| Ejecutar tests, lint, compilaciones, logs | `pruebas` | Haiku 5.5 |
+
+- Lo que pase de un modelo a otro va por escrito (plan, `docs/specs/`, ADR, traspaso en la
+  incidencia): el razonamiento de Fable no llega a Opus. Cambia de modelo en los cortes naturales.
+- Si Opus `medium` se atasca: 1) que pueda comprobar su trabajo (test, build); 2) `/effort high`;
+  3) `investigador` o una sesión con `/model fable`. Nunca Opus en `xhigh` ni `max`.
+- A Haiku solo va lo que es fácil de comprobar; nunca ediciones de código.
+
 ## Plugins y skills: úsalos por iniciativa propia
 
 Declarados en `.claude/settings.json` y `.claude/skills/`. **IMPORTANT:** invócalos tú con la
@@ -141,7 +161,7 @@ no está instalado, aplica igualmente la regla que describe y avisa en una líne
 | Cuándo | Qué invocas tú | Resultado |
 | --- | --- | --- |
 | Al empezar cualquier tarea de código | `ponytail:ponytail` en nivel `full` (el que trae por defecto); `lite` si la tarea es solo documentación | Cambio mínimo completo; cierra con lo omitido y los riesgos |
-| Antes de proponer o hacer un commit que incluya código | `ponytail:ponytail-review` sobre el diff | Corrige los fallos antes del commit; menciona el resto |
+| Antes de proponer o hacer un commit que incluya código | Agente `revisor`, que aplica `ponytail:ponytail-review` sobre el diff | Corrige los fallos antes del commit; menciona el resto |
 | Al cerrar una fase o un hito de seguimiento | `ponytail:ponytail-audit` y `ponytail:ponytail-debt` | Resumen en `docs/seguimiento/` |
 | Al diseñar o rehacer interfaz (pantallas, componentes, estilos, materiales de difusión) | `frontend-design:frontend-design` | Dirección visual con los límites de abajo |
 | Se pide una funcionalidad que toca varios módulos o varias piezas, o una decisión que merece ADR, y no existe su `docs/specs/<nombre>.md` | `grilling` (la versión de la persona es `/grill-me`) | Entrevista antes del modo plan |
