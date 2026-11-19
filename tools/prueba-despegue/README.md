@@ -104,3 +104,4 @@ Repite los pasos 4 y 5.
 | Se queda en `CLIMBING` y aterriza a los 15 s | El dron no se estabiliza en 1,20 m ± 0,15 m o no acepta la altura por joysticks virtuales: revisar en el simulador el modo `VerticalControlMode.POSITION` |
 | Mensajes del MSDK | En el PC: `adb logcat -s PruebaDespegue` |
 | La app se cierra nada más abrirla (`NoClassDefFoundError` en `adb logcat -b crash`) | Se compiló como depurable: el protector del MSDK no arranca así. `app/build.gradle.kts` debe tener `debug { isDebuggable = false }` |
+| El enlace se corta cada ~6 s (`Enlace con el controlador de vuelo: NO` en logcat; aterriza por «sin dato de altura») | DJI Fly sigue abierto en segundo plano y compite por el dron. Ciérralo del todo (recientes → deslizar) o `adb shell am force-stop dji.go.v5`. Medido el 19/11/2026 en el RC Pro: 9 cortes en 166 s con DJI Fly abierto, 0 en 90 s cerrado |
