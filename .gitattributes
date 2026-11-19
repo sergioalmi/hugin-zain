@@ -6,6 +6,7 @@
 *.bat text eol=crlf
 *.cmd text eol=crlf
 *.sh  text eol=lf
+gradlew text eol=lf
 
 # {{RELLENAR o BORRAR: binarios pesados con Git LFS (ejecutar `git lfs install` una vez); la cuota
 # gratuita de GitHub es limitada. Ejemplos:}}
