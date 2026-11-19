@@ -39,7 +39,7 @@ import dji.v5.manager.aircraft.virtualstick.VirtualStickState
 import dji.v5.manager.aircraft.virtualstick.VirtualStickStateListener
 
 /**
- * Pantalla de la prueba: DESPEGAR A 2 m y ATERRIZAR. Traduce las órdenes de [TakeoffController]
+ * Pantalla de la prueba: DESPEGAR A 1,2 m y ATERRIZAR. Traduce las órdenes de [TakeoffController]
  * a llamadas del MSDK en un bucle a 10 Hz.
  */
 class MainActivity : Activity() {
@@ -255,7 +255,7 @@ class MainActivity : Activity() {
             minHeight = dp(48)
             setOnCheckedChangeListener { _, checked -> setSimulator(checked) }
         }
-        takeoffButton = bigButton("DESPEGAR A 2 m", Color.rgb(0, 90, 160)) { controller.requestTakeoff() }
+        takeoffButton = bigButton("DESPEGAR A 1,2 m", Color.rgb(0, 90, 160)) { controller.requestTakeoff() }
         val landButton = bigButton("ATERRIZAR", Color.rgb(180, 0, 0)) { controller.requestLanding() }
         val buttons = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL

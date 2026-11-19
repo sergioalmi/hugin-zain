@@ -1,6 +1,7 @@
 package com.huginzain.pruebadespegue
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -15,7 +16,7 @@ class TakeoffControllerTest {
         c.requestTakeoff()
         c.tick(ground, 0)
         c.tick(autoTakeoff, 100)
-        c.tick(flying(1.2), 200)
+        c.tick(flying(1.0), 200)
         return c
     }
 
@@ -27,32 +28,41 @@ class TakeoffControllerTest {
     }
 
     @Test
-    fun `flujo normal despega sube a 2 m y se mantiene`() {
+    fun `flujo normal despega y se mantiene a 1,2 m`() {
         val c = TakeoffController()
         c.requestTakeoff()
         assertEquals(Command.TakeOff, c.tick(ground, 0))
         assertEquals(Command.None, c.tick(ground, 100)) // motores arrancando
         assertEquals(Command.None, c.tick(autoTakeoff, 2_000)) // despegue automático en curso
-        assertEquals(Command.HoldAltitude(2.0), c.tick(flying(1.2), 4_000))
+        assertEquals(Command.HoldAltitude(1.2), c.tick(flying(1.0), 4_000))
         assertEquals(Phase.CLIMBING, c.phase)
-        assertEquals(Command.HoldAltitude(2.0), c.tick(flying(1.86), 5_000)) // justo dentro de 0,15 m
+        assertEquals(Command.HoldAltitude(1.2), c.tick(flying(1.06), 5_000)) // justo dentro de 0,15 m
         assertEquals(Phase.HOLDING, c.phase)
-        assertEquals(Command.HoldAltitude(2.0), c.tick(flying(2.0), 60_000)) // mantener no caduca
+        assertEquals(Command.HoldAltitude(1.2), c.tick(flying(1.2), 60_000)) // mantener no caduca
         assertEquals(Phase.HOLDING, c.phase)
     }
 
     @Test
-    fun `justo fuera de la tolerancia sigue subiendo`() {
+    fun `justo fuera de la tolerancia no pasa a mantener`() {
         val c = climbing()
-        c.tick(flying(1.84), 300)
+        c.tick(flying(1.04), 300)
         assertEquals(Phase.CLIMBING, c.phase)
+        c.tick(flying(1.36), 400)
+        assertEquals(Phase.CLIMBING, c.phase)
+    }
+
+    @Test
+    fun `la altura del despegue automatico ya vale para mantener`() {
+        val c = climbing()
+        c.tick(flying(1.30), 300) // medido en el simulador
+        assertEquals(Phase.HOLDING, c.phase)
     }
 
     @Test
     fun `despegar solo vale en tierra`() {
         val c = climbing()
         c.requestTakeoff()
-        assertEquals(Command.HoldAltitude(2.0), c.tick(flying(1.5), 300))
+        assertEquals(Command.HoldAltitude(1.2), c.tick(flying(1.5), 300))
     }
 
     @Test
@@ -114,17 +124,60 @@ class TakeoffControllerTest {
     }
 
     @Test
-    fun `aborta si pasa de la altura maxima`() {
+    fun `subiendo 1,50 m no aborta y 1,51 m aborta`() {
         val c = climbing()
-        assertEquals(Command.HoldAltitude(2.0), c.tick(flying(3.0), 300)) // 3,0 m aún vale
-        val cmd = c.tick(flying(3.01), 400)
+        assertEquals(Command.HoldAltitude(1.2), c.tick(flying(1.50), 300))
+        assertEquals(Phase.CLIMBING, c.phase)
+        val cmd = c.tick(flying(1.51), 400)
         assertTrue(cmd is Command.Land && cmd.reason.contains("altura"))
+        assertEquals(Phase.LANDING, c.phase)
+    }
+
+    @Test
+    fun `manteniendo 1,50 m no aborta y 1,51 m aborta`() {
+        val c = climbing()
+        c.tick(flying(1.2), 300)
+        assertEquals(Phase.HOLDING, c.phase)
+        assertEquals(Command.HoldAltitude(1.2), c.tick(flying(1.50), 400))
+        assertEquals(Phase.HOLDING, c.phase)
+        val cmd = c.tick(flying(1.51), 500)
+        assertTrue(cmd is Command.Land && cmd.reason.contains("altura"))
+        assertEquals(Phase.LANDING, c.phase)
+    }
+
+    @Test
+    fun `aborta si el despegue automatico pasa del techo`() {
+        val c = TakeoffController()
+        c.requestTakeoff()
+        c.tick(ground, 0)
+        assertEquals(Command.None, c.tick(autoTakeoff.copy(altitudeM = 1.50), 100))
+        val cmd = c.tick(autoTakeoff.copy(altitudeM = 1.51), 200)
+        assertTrue(cmd is Command.Land && cmd.reason.contains("altura"))
+    }
+
+    @Test
+    fun `una altura NaN o infinita cuenta como sin dato`() {
+        for (bad in listOf(Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY)) {
+            val c = climbing()
+            assertEquals(Command.HoldAltitude(1.2), c.tick(flying(bad), 1_200))
+            assertEquals(Phase.CLIMBING, c.phase)
+            val cmd = c.tick(flying(bad), 1_201)
+            assertTrue(cmd is Command.Land && cmd.reason.contains("sin dato"))
+        }
+    }
+
+    @Test
+    fun `el objetivo mas la tolerancia debe quedar por debajo del techo`() {
+        TakeoffController(targetM = 1.3, toleranceM = 0.15, maxAltitudeM = 1.5) // 1,45 < 1,5: vale
+        assertThrows(IllegalArgumentException::class.java) { TakeoffController(targetM = 1.35) } // igual al techo
+        assertThrows(IllegalArgumentException::class.java) { TakeoffController(targetM = 2.0) }
+        assertThrows(IllegalArgumentException::class.java) { TakeoffController(maxAltitudeM = 1.2) }
     }
 
     @Test
     fun `tolera huecos de telemetria de hasta 1 s`() {
         val c = climbing()
-        assertEquals(Command.HoldAltitude(2.0), c.tick(flying(null), 1_200)) // 1000 ms sin dato
+        assertEquals(Command.HoldAltitude(1.2), c.tick(flying(null), 1_200)) // 1000 ms sin dato
         val cmd = c.tick(flying(null), 1_201)
         assertTrue(cmd is Command.Land && cmd.reason.contains("sin dato"))
     }
@@ -139,10 +192,10 @@ class TakeoffControllerTest {
     }
 
     @Test
-    fun `aborta si no llega a 2 m en 15 s`() {
+    fun `aborta si no se estabiliza en 1,2 m en 15 s`() {
         val c = climbing()
-        assertEquals(Command.HoldAltitude(2.0), c.tick(flying(1.2), 15_200))
-        assertTrue(c.tick(flying(1.2), 15_201) is Command.Land)
+        assertEquals(Command.HoldAltitude(1.2), c.tick(flying(1.0), 15_200))
+        assertTrue(c.tick(flying(1.0), 15_201) is Command.Land)
     }
 
     @Test

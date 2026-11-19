@@ -1,9 +1,9 @@
-# Prueba de despegue a 2 m (Mini 3 Pro + DJI RC Pro)
+# Prueba de despegue a 1,2 m (Mini 3 Pro + DJI RC Pro)
 
 App Android mínima para probar el MSDK V5 5.18.0. Tiene dos botones:
 
-- **DESPEGAR A 2 m**: despegue automático. Después sube con joysticks virtuales hasta 2 m sobre el
-  punto de despegue y se queda ahí.
+- **DESPEGAR A 1,2 m**: despegue automático, que ya deja el dron a ~1,2-1,3 m. Después mantiene
+  1,2 m sobre el punto de despegue con joysticks virtuales. No debe pasar nunca de 1,5 m.
 - **ATERRIZAR**: aterrizaje automático. Confirma sola la parada a unos 0,5 m del suelo.
 
 También tiene la casilla **Modo simulador (motores parados)**: con ella marcada, el dron vuela solo
@@ -16,7 +16,7 @@ Abortos automáticos (aterriza sola):
 
 | Caso | Límite |
 | --- | --- |
-| Altura | > 3 m |
+| Altura | > 1,5 m |
 | Sin dato de altura | > 1 s |
 | Despegue o subida sin terminar | > 15 s |
 | Fallo al activar los joysticks virtuales | — |
@@ -77,16 +77,17 @@ registrar la App Key.
 1. Pon el dron sobre una superficie plana y enciende el dron y el mando.
 2. Abre la app. Espera a ver `MSDK: App Key registrada` y `Dron: conectado`.
 3. Marca **Modo simulador** y espera a ver `Simulador: SÍ`. Los motores no arrancan en el simulador.
-4. Pulsa **DESPEGAR A 2 m**. La fase debe pasar por
-   `TAKING_OFF → CLIMBING → HOLDING`, con la altura subiendo hasta 2,00 m ± 0,15 m.
+4. Pulsa **DESPEGAR A 1,2 m**. La fase debe pasar por
+   `TAKING_OFF → CLIMBING → HOLDING`, con la altura estable en
+   1,20 m ± 0,15 m y sin pasar nunca de 1,50 m.
 5. Pulsa **ATERRIZAR**. La fase pasa a `LANDING` y después a `ON_GROUND`.
-6. Repite la prueba 3 veces. Prueba también el botón de pausa del mando durante la subida: la fase
+6. Repite la prueba 3 veces. Prueba también el botón de pausa del mando en `HOLDING`: la fase
    debe pasar a `MANUAL`.
 
 **Después, de verdad:**
 
 - Desmarca el simulador.
-- Necesitas un espacio despejado con al menos 4 m de altura libre, sin personas debajo y con el
+- Necesitas un espacio despejado con al menos 2,5 m de altura libre, sin personas debajo y con el
   suelo con textura (los sensores de abajo lo necesitan en interior).
 - El piloto debe tener el mando en la mano, listo para el botón de pausa o para aterrizar a mano.
 
@@ -100,6 +101,6 @@ Repite los pasos 4 y 5.
 | `Dron: NO conectado` | DJI Fly sigue abierto, o el dron está apagado o sin emparejar (emparejar con DJI Fly) |
 | Error «binding device mismatch» | Se cambió de mando: vuelve a emparejar con DJI Fly |
 | `Despegue falló: …` | Brújula sin calibrar, batería baja, motores bloqueados o zona restringida; lee el mensaje |
-| Se queda en `CLIMBING` y aterriza a los 15 s | El dron no acepta la altura por joysticks virtuales: revisar en el simulador el modo `VerticalControlMode.POSITION` |
+| Se queda en `CLIMBING` y aterriza a los 15 s | El dron no se estabiliza en 1,20 m ± 0,15 m o no acepta la altura por joysticks virtuales: revisar en el simulador el modo `VerticalControlMode.POSITION` |
 | Mensajes del MSDK | En el PC: `adb logcat -s PruebaDespegue` |
 | La app se cierra nada más abrirla (`NoClassDefFoundError` en `adb logcat -b crash`) | Se compiló como depurable: el protector del MSDK no arranca así. `app/build.gradle.kts` debe tener `debug { isDebuggable = false }` |

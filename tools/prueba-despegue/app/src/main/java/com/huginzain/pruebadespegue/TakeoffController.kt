@@ -16,13 +16,15 @@ sealed interface Command {
 }
 
 /**
- * Lógica pura de la prueba: despegar, subir hasta [targetM] y mantenerse, con abortos.
+ * Lógica pura de la prueba: despegar y mantenerse a [targetM], con abortos. El dron no debe pasar
+ * de [maxAltitudeM]: [targetM] es la altura a la que ya lo deja el despegue automático (~1,2-1,3 m),
+ * así que no hay subida que pueda pasarse.
  * Sin dependencias de DJI ni de Android, para probarla en la JVM. Se llama a 10 Hz con [tick].
  */
 class TakeoffController(
-    private val targetM: Double = 2.0,
+    private val targetM: Double = 1.2,
     private val toleranceM: Double = 0.15,
-    private val maxAltitudeM: Double = 3.0,
+    private val maxAltitudeM: Double = 1.5,
     private val phaseTimeoutMs: Long = 15_000,
     private val telemetryTimeoutMs: Long = 1_000,
 ) {
@@ -32,6 +34,12 @@ class TakeoffController(
     private var lastAltitudeMs = 0L
     private var takeoffRequested = false
     private var landRequested = false
+
+    init {
+        require(targetM + toleranceM < maxAltitudeM) {
+            "targetM + toleranceM (${targetM + toleranceM} m) debe quedar por debajo de maxAltitudeM ($maxAltitudeM m)"
+        }
+    }
 
     /** Botón DESPEGAR: solo vale en tierra. */
     fun requestTakeoff() {
@@ -48,7 +56,9 @@ class TakeoffController(
         if (phase != Phase.ON_GROUND && phase != Phase.LANDING) phase = Phase.MANUAL
     }
 
-    fun tick(t: Telemetry, nowMs: Long): Command {
+    fun tick(raw: Telemetry, nowMs: Long): Command {
+        // Una altura NaN o infinita no es un dato: sin esto NaN nunca supera el techo ni caduca.
+        val t = if (raw.altitudeM?.isFinite() == false) raw.copy(altitudeM = null) else raw
         if (t.altitudeM != null) lastAltitudeMs = nowMs
 
         if (phase == Phase.MANUAL) {
